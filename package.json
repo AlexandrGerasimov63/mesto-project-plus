@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "mesto",
   "main": "dist/app.js",
+
   "scripts": {
     "lint": "npx eslint src/**/*.ts",
     "build": "tsc",
