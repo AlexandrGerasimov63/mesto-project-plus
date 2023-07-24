@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { RequestUser } from "types/types";
 import card from "../models/card";
-import { Types } from "mongoose";
 
 export const getAllCards = (
   req: Request,

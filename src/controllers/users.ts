@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import user from "../models/user";
 import { RequestUser } from "types/types";
+import { ERROR_DEFUALT_CODE, NOT_FOUND_CODE } from "../constants/statuscode";
+import { ERROR_DEFUALT_CODE_REQUEST, NOT_FOUND_CODE_REQUEST, CAST_ERROR } from "../constants/errors";
 export const createUser = (req: Request, res: Response, next: NextFunction) => {
   const { name, about, avatar } = req.body;
   user
@@ -32,12 +34,19 @@ export const getUserById = (
 ) => {
   user
     .findById(req.params.id)
+    .orFail(new Error(`NotValidId`))
     .then((data) => {
       res.status(200).send(data);
     })
     .catch((err) => {
-      res.send(`Произошла ошибка`);
-      next(err);
+      console.log(err.message)
+      if(err.name === CAST_ERROR){
+      res.status(NOT_FOUND_CODE).send({messenge:NOT_FOUND_CODE_REQUEST})
+      next(err.name)
+    } else{
+      res.status(ERROR_DEFUALT_CODE).send({messenge:ERROR_DEFUALT_CODE_REQUEST})
+      next()}
+
     });
 };
 
