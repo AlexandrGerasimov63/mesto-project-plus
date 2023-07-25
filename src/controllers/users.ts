@@ -1,8 +1,10 @@
 import { Request, Response, NextFunction } from "express";
 import user from "../models/user";
 import { RequestUser } from "types/types";
-import { ERROR_DEFUALT_CODE, NOT_FOUND_CODE } from "../constants/statuscode";
-import { ERROR_DEFUALT_CODE_REQUEST, NOT_FOUND_CODE_REQUEST, CAST_ERROR } from "../constants/errors";
+import { Error } from "mongoose";
+const  NotFoundError  = require("../errors/NotFoundError");
+const  NotValidData = require('../errors/NotValidError')
+
 export const createUser = (req: Request, res: Response, next: NextFunction) => {
   const { name, about, avatar } = req.body;
   user
@@ -10,10 +12,13 @@ export const createUser = (req: Request, res: Response, next: NextFunction) => {
     .then((data) => {
       res.status(200).send({ message: data });
     })
-    .catch((err) => {
-      console.log(err);
-      next(err);
-    });
+    .catch(err=>{
+      if (err.name === 'CastError') {
+        next(new NotValidData("Не валидные данные"))
+      } else {
+        next(err);
+      }
+    })
 };
 
 export const allUsers = (req: Request, res: Response, next: NextFunction) => {
@@ -22,9 +27,7 @@ export const allUsers = (req: Request, res: Response, next: NextFunction) => {
     .then((data) => {
       res.send(data);
     })
-    .catch((err) => {
-      next(err);
-    });
+    .catch(next)
 };
 
 export const getUserById = (
@@ -33,21 +36,19 @@ export const getUserById = (
   next: NextFunction
 ) => {
   user
+
     .findById(req.params.id)
-    .orFail(new Error(`NotValidId`))
     .then((data) => {
+
       res.status(200).send(data);
     })
-    .catch((err) => {
-      console.log(err.message)
-      if(err.name === CAST_ERROR){
-      res.status(NOT_FOUND_CODE).send({messenge:NOT_FOUND_CODE_REQUEST})
-      next(err.name)
-    } else{
-      res.status(ERROR_DEFUALT_CODE).send({messenge:ERROR_DEFUALT_CODE_REQUEST})
-      next()}
-
-    });
+    .catch(err=>{
+      if (err.name === 'CastError') {
+        next(new NotFoundError("Пользователь не найден"))
+      } else {
+        next(err);
+      }
+    })
 };
 
 export const updateUserInfo = (
@@ -58,11 +59,20 @@ export const updateUserInfo = (
   const updateName = req.body.name;
   const updateAbout = req.body.about;
   user
-    .findOneAndUpdate(req.user, { name: updateName, about: updateAbout })
-    .then(() => {
-      res.status(200).send({ messange: "Пользователь обновлен" });
+    .findOneAndUpdate(req.user, { name: updateName, about: updateAbout },{ new: true, runValidators: true })
+    .orFail(()=>{
+      throw new NotFoundError('Пользователь не найден')
     })
-    .catch((err) => next(err));
+    .then(() => {
+      res.status(200).send({ message: "Пользователь обновлен" });
+    })
+    .catch((err) => {
+      if(err.name === 'CastError'){
+      next(new NotValidData('Не верные данные'))
+      } else {
+        next(err)
+      }
+    });
 };
 
 export const updateUserAvatar = (
@@ -71,10 +81,20 @@ export const updateUserAvatar = (
   next: NextFunction
 ) => {
   const updateAvatar = req.body.avatar;
-  user
-    .findOneAndUpdate(req.user, { avatar: updateAvatar })
+   user
+    .findOneAndUpdate(req.user, { avatar: updateAvatar },{ new: true, runValidators: true })
+    .orFail(()=>{
+      throw new NotFoundError('Пользователь не найден')
+    })
     .then(() => {
+
       res.status(200).send({ message: "Аватар обновлен" });
     })
-    .catch((err) => next(err));
+    .catch((err) => {
+      if(err.name === 'CastError'){
+      next(new NotValidData('Не верные данные'))
+      } else {
+        next(err)
+      }
+    });
 };

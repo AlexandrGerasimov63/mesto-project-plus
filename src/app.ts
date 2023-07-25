@@ -1,10 +1,9 @@
-import express, { Request, Response } from "express";
-import mongoose from "mongoose";
+import express, { Request, Response } from 'express';
+import mongoose from 'mongoose';
 import userRouter from "./routes/users";
 import cardsRouter from "./routes/cards";
-
 import { RequestUser } from "./types/types";
-
+import  errorHandler  from "./middlewares/ErrorHeandler";
 
 const app = express();
 const { PORT = 3000 } = process.env;
@@ -26,6 +25,7 @@ app.get("/", (req: Request, res: Response) => {
 
 app.use("/users", userRouter);
 app.use('/cards', cardsRouter)
+app.use(errorHandler)
 app.listen(PORT, () => {
   console.log(`Сервер запущен на ${PORT} порту`);
 });

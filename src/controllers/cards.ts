@@ -1,6 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import { RequestUser } from "types/types";
 import card from "../models/card";
+const  NotFoundError  = require("../errors/NotFoundError");
+const  NotValidData = require('../errors/NotValidError')
+
 
 export const getAllCards = (
   req: Request,
@@ -10,7 +13,7 @@ export const getAllCards = (
   card
     .find({})
     .then((data) => res.status(200).send(data))
-    .catch((err) => next(err));
+    .catch(next);
 };
 
 export const createCard = (
@@ -25,7 +28,13 @@ export const createCard = (
     .then((data) => {
       res.status(200).send({ message: data });
     })
-    .catch((err) => next(err));
+    .catch(err=>{
+      if (err.name === 'CastError') {
+        next(new NotValidData("Не валидные данные"))
+      } else {
+        next(err);
+      }
+    })
 };
 
 export const deleteCard = (
@@ -35,6 +44,7 @@ export const deleteCard = (
 ) => {
   card
     .findOneAndRemove({ _id: req.params.cardId })
+    .orFail(new Error("не корректный ID"))
     .then(() => res.status(200).send({ message: "Карточка удалена" }))
     .catch((err) => next(err));
 };
