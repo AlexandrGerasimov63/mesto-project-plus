@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import { RequestUser } from "types/types";
 import card from "../models/card";
-const  NotFoundError  = require("../errors/NotFoundError");
-const  NotValidData = require('../errors/NotValidError')
-
+const NotFoundError  = require("../errors/NotFoundError");
+const NotValidData = require('../errors/NotValidError')
+const NotAccessError = require('../errors/NotAccess')
 
 export const getAllCards = (
   req: Request,
@@ -37,16 +37,41 @@ export const createCard = (
     })
 };
 
-export const deleteCard = (
-  req: RequestUser,
+// export const deleteCard = (
+//   req: RequestUser,
+//   res: Response,
+//   next: NextFunction
+// ) => {
+//   card
+//     .findOneAndRemove({ _id: req.params.cardId })
+//     .orFail(new Error("не корректный ID"))
+//     .then(() => res.status(200).send({ message: "Карточка удалена" }))
+//     .catch((err) => next(err));
+// };
+
+export const deleteCard = async (
+  req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
-  card
-    .findOneAndRemove({ _id: req.params.cardId })
-    .orFail(new Error("не корректный ID"))
-    .then(() => res.status(200).send({ message: "Карточка удалена" }))
-    .catch((err) => next(err));
+  const { cardId } = req.params;
+  const userId = (req as RequestUser).user?._id;
+  try {
+    const cardUser = await card.findOne({ _id: cardId });
+    if (!cardUser) {
+      return next(new NotFoundError('Не удалось найти карточку'));
+    }
+    if (cardUser.owner.toString() !== userId?.toString()) {
+      return next(new NotAccessError('Нет прав для удаления карточки'));
+    }
+    const result = await card.deleteOne({ _id: cardId });
+    if (result.deletedCount === 1) {
+      return res.send({ statusCard: 'deleted', data: cardUser });
+    }
+    return next(new NotFoundError('Не удалось найти карточку'));
+  } catch {
+    next();
+  }
 };
 
 export const likeCard = (
@@ -60,8 +85,17 @@ export const likeCard = (
       { $addToSet: { likes: req.user?._id } },
       { new: true }
     )
-    .then(() => res.send({ message: "Лайк поставлен" }))
-    .catch((err) => next(err));
+    .orFail(() => {
+      throw new NotFoundError('Карточка с данным id не найдена');
+    })
+    .then(() => res.send({ message: 'Лайк поставлен' }))
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        next(new NotValidData('Не валидный id'));
+      } else {
+        next(err);
+      }
+    });
 };
 
 export const dislikeCard = (

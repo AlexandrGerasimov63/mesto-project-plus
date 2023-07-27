@@ -1,0 +1,10 @@
+class NotAccessError extends Error {
+  status: number;
+
+  constructor(message: string) {
+    super(message);
+    this.status = 403;
+  }
+}
+
+export default NotAccessError;
