@@ -130,7 +130,7 @@ export const login = (req: Request, res: Response, next: NextFunction) => {
     .then((user) => {
       const id = String(user._id);
       const token = jwt.sign({ _id: id }, "secret", {
-        expiresIn: "2h",
+        expiresIn: "7d",
       },
 
       );
