@@ -7,6 +7,7 @@ import  errorHandler  from "./middlewares/ErrorHeandler";
 import authRouter from './routes/auth';
 import Auth from './middlewares/Auth';
 import { requestLogger, errorLogger } from './middlewares/Logger';
+import { errors } from 'celebrate';
 
 const app = express();
 const { PORT = 3000 } = process.env;
@@ -21,6 +22,7 @@ app.use(Auth)
 app.use("/users", userRouter);
 app.use('/cards', cardsRouter);
 app.use(errorLogger)
+app.use(errors())
 app.use(errorHandler)
 app.listen(PORT, () => {
   console.log(`Сервер запущен на ${PORT} порту`);

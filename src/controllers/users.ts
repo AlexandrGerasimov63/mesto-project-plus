@@ -55,6 +55,7 @@ export const getUserById = (
   user
     .findById(req.params.id)
     .then((data) => {
+      console.log(req.params.id)
       res.status(200).send(data);
     })
     .catch((err) => {

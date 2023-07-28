@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from 'express';
+import { NextFunction, Response } from 'express';
 import jwt from "jsonwebtoken"
 import { ISessionRequest } from '../types/types';
 const AuthError = require('../errors/AuthError')
@@ -19,7 +19,7 @@ export default (req: ISessionRequest, res: Response, next: NextFunction) => {
   try {
     // попытаемся верифицировать токен
     payload = jwt.verify(token, 'secret');
-    console.log(payload)
+
   } catch (err) {
     console.log(err)
     // отправим ошибку, если не получилось
