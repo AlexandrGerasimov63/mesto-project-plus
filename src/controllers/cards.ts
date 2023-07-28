@@ -37,18 +37,6 @@ export const createCard = (
     })
 };
 
-// export const deleteCard = (
-//   req: RequestUser,
-//   res: Response,
-//   next: NextFunction
-// ) => {
-//   card
-//     .findOneAndRemove({ _id: req.params.cardId })
-//     .orFail(new Error("не корректный ID"))
-//     .then(() => res.status(200).send({ message: "Карточка удалена" }))
-//     .catch((err) => next(err));
-// };
-
 export const deleteCard = async (
   req: Request,
   res: Response,
@@ -61,18 +49,19 @@ export const deleteCard = async (
     if (!cardUser) {
       return next(new NotFoundError('Не удалось найти карточку'));
     }
-    if (cardUser.owner.toString() !== userId?.toString()) {
-      return next(new NotAccessError('Нет прав для удаления карточки'));
+    if (cardUser?.owner.toString() !== userId?.toString()) {
+      next(new NotAccessError('Нет прав для удаления карточки'));
     }
     const result = await card.deleteOne({ _id: cardId });
     if (result.deletedCount === 1) {
-      return res.send({ statusCard: 'deleted', data: cardUser });
+      return res.send({ messenge:"Карточка удалена "});
     }
     return next(new NotFoundError('Не удалось найти карточку'));
   } catch {
     next();
   }
 };
+
 
 export const likeCard = (
   req: RequestUser,

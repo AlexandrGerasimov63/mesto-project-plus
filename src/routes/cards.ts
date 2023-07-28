@@ -6,7 +6,7 @@ export const cardsRouter= Router();
 
 cardsRouter.get('/', getAllCards);
 cardsRouter.post('/',createCardValidate, createCard)
-cardsRouter.delete('/:cardId',updateCardValidate, deleteCard)
 cardsRouter.put('/:cardId/likes',updateCardValidate, likeCard)
 cardsRouter.delete('/:cardId/likes',updateCardValidate, dislikeCard)
+cardsRouter.delete('/:cardId',updateCardValidate, deleteCard)
 export default cardsRouter
