@@ -21,8 +21,3 @@ export const updateAvatarValidate = celebrate({
       avatar: Joi.string().regex(regExp),
     }),
 });
-
-
-
-
-

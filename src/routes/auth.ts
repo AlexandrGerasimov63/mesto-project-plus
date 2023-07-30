@@ -1,9 +1,10 @@
-import { Router } from "express";
-import { login, createUser } from "../controllers/users";
-import { signinValidation, signupValidation } from "../validation/authValidation";
-export const authRouter = Router()
+import { Router } from 'express';
+import { login, createUser } from '../controllers/users';
+import { signinValidation, signupValidation } from '../validation/authValidation';
 
-authRouter.post('/signin',signinValidation, login);
-authRouter.post('/signup',signupValidation, createUser);
+export const authRouter = Router();
 
-export default authRouter
+authRouter.post('/signin', signinValidation, login);
+authRouter.post('/signup', signupValidation, createUser);
+
+export default authRouter;

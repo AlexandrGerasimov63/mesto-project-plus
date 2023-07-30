@@ -1,4 +1,4 @@
-import { regExp } from "../utils/constant";
+import { regExp } from '../utils/constant';
 
 const { celebrate, Joi } = require('celebrate');
 

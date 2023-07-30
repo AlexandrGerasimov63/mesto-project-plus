@@ -1,10 +1,10 @@
 class NotAccessError extends Error {
-  status: number;
+  public statusCode:number;
 
-  constructor(message: string) {
+  constructor(message:string) {
     super(message);
-    this.status = 403;
+    this.statusCode = 403;
   }
 }
 
-export default NotAccessError;
+module.exports = NotAccessError;

@@ -4,7 +4,7 @@ const errorHandler = (
   err: any,
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   const { statusCode = 500, message } = err;
 
@@ -14,7 +14,7 @@ const errorHandler = (
       // проверяем статус и выставляем сообщение в зависимости от него
       message: statusCode === 500
         ? 'На сервере произошла ошибка'
-        : message
+        : message,
     });
   next();
 };

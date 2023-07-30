@@ -1,7 +1,6 @@
-import { regExp } from "../utils/constant";
+import { regExp } from '../utils/constant';
 
 const { celebrate, Joi } = require('celebrate');
-
 
 export const signupValidation = celebrate({
   body: Joi.object().keys({
