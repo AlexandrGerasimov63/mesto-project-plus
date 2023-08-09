@@ -1,31 +1,32 @@
-import express, { Request, Response } from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
-import userRouter from "./routes/users";
-import cardsRouter from "./routes/cards";
-import { RequestUser } from "./types/types";
-import  errorHandler  from "./middlewares/ErrorHeandler";
+import { errors } from 'celebrate';
+import { userRouter } from './routes/users';
+import { cardsRouter } from './routes/cards';
+import errorHandler from './middlewares/ErrorHeandler';
+import { authRouter } from './routes/auth';
+import Auth from './middlewares/Auth';
+import { requestLogger, errorLogger } from './middlewares/Logger';
 
 const app = express();
 const { PORT = 3000 } = process.env;
+const NotFoundError = require('./errors/NotFoundError');
 
-mongoose.connect("mongodb://localhost:27017/mestodb");
+mongoose.connect('mongodb://localhost:27017/mestodb');
 
 app.use(express.json());
-app.use((req, res, next) => {
-  const reqUser = req as RequestUser;
-  reqUser.user = {
-    _id: "64b9561630a549709c9939b3", // вставьте сюда _id созданного в предыдущем пункте пользователя
-  };
+app.use(requestLogger);
 
-  next();
+app.use(authRouter);
+app.use(Auth);
+app.use('/users', userRouter);
+app.use('/cards', cardsRouter);
+app.use((req: Request, res: Response, next: NextFunction) => {
+  next(new NotFoundError('Страница не найдена'));
 });
-app.get("/", (req: Request, res: Response) => {
-  res.send("Привет");
-});
-
-app.use("/users", userRouter);
-app.use('/cards', cardsRouter)
-app.use(errorHandler)
+app.use(errorLogger);
+app.use(errors());
+app.use(errorHandler);
 app.listen(PORT, () => {
   console.log(`Сервер запущен на ${PORT} порту`);
 });

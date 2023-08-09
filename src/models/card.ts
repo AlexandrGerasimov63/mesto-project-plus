@@ -1,4 +1,5 @@
-import mongoose, {ObjectId} from "mongoose";
+import mongoose from 'mongoose';
+import isURL from 'validator/lib/isURL';
 
 export interface ICard {
   name: string;
@@ -10,28 +11,32 @@ export interface ICard {
 }
 
 const cardShema = new mongoose.Schema<ICard>({
-  name:{
-    type:String,
+  name: {
+    type: String,
     required: true,
-    minlength:2,
-    maxlength:30
+    minlength: 2,
+    maxlength: 30,
   },
-  link:{
-    type:String,
-    required:true
+  link: {
+    type: String,
+    required: true,
+    validate: {
+      validator: (v:string) => isURL(v),
+      message: 'Не валидная ссылка',
+    },
   },
-  owner:{
-    type:mongoose.Schema.Types.ObjectId,
-    required:true
+  owner: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
   },
-  likes:{
-    type:[mongoose.Schema.Types.ObjectId],
-    default:[]
+  likes: {
+    type: [mongoose.Schema.Types.ObjectId],
+    default: [],
   },
-  createdAt:{
-    type:Date,
-    default:()=>new Date()
-  }
-})
+  createdAt: {
+    type: Date,
+    default: () => new Date(),
+  },
+});
 
-export default mongoose.model<ICard>('card',cardShema)
+export default mongoose.model<ICard>('card', cardShema);
